@@ -1,0 +1,26 @@
+Investigating Windows
+A windows machine was compromised and requires forensic investigation. System configuration revealed the machine was running Windows Server 2016. In Windows Logs in Application I found that the last user logged was Administrator. 
+Then using Command Prompt with "net user" and then "net user John" for his last log onto the system: 3/2/2019 5:48:32 PM. And using "lusrmgr" we can find that Guest and Jenny have administrative privileges which also can be found with command prompt using "net localgroup Administrators".
+In Task Scheduler there is a "clean file system" that operates daily at 4:55 PM. The path file of this task is: C:\TMP\nc.ps1 -I 1348. From this, we can deduce that the listening port was 1348. 
+Revising the command prompt about user Jenny we can find that the her last logon was "never" but her Password was last set on 3/2/2018 that we can associate with the date when the compromise took place.
+In Windows Logs at Security there are only events from 27/2/2026 but in Application (ID 1016) was found a "Proof of Purchase installed succesful" at 3/2/2019 at 1:04:49.
+And looking in the carpet TMP we can find the file mim.exe and using powershell to get the hash (Get-FileHash -Algorithm sha256 .\mim.exe) we can get: 
+F8F1C210A8C863EFC0F6B8AC3553030A14A702CE8CF573CB5E9CD58F70C7C622 
+Which in VirusTotal is reported as malicious by 50 vendors and is mk.exe (also known as trojan.mimikatz) which uses the following techniques:
+Execution (TA0002)
+-Windows Management Instr. (T1047)
+-Native API (T1106)
+Privilege Escalation (TA0004)
+-Process Injection (T1055)
+Defense Evasion (TA0005)
+-Obfuscated Files or Information (T1027)
+-Masquerading (T1036)
+-Masquerading (T1055)
+Discovery (TA0007)
+
+And revising the hosts.txt (C:Windows/System32/drivers/etc) we can detect DNS spoofing of google.com to the malicious IP 76.32.97.132.
+T1557 – Adversary-in-the-Middle
+
+Also in  In Firewall last port opened 1337 and in the root of the iis server (C:\inetpub/wwwroot) was found a .jsp file which was identified as a malicious web shell.
+ 
+Web Shell (T1505.003)

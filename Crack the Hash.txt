@@ -1,0 +1,75 @@
+TryHackMe challenge
+Crack the hash
+Cracking hashes
+
+The objective of this exercise was to identify and crack multiple hash types using open-source intelligence (OSINT) tools and public hash databases. The activity demonstrates understanding of hash recognition, cryptographic formats, and password exposure risks.
+
+In this exercise I recovered some hashes using Virustotal, hashes.com and crackstation.com.
+
+48bb6e862e54f2a795ffc4e541caed4d
+First Virustotal and Crackstation = easy
+Easily reversible due to public rainbow tables
+
+CBFDAC6008F9CAB4083784CBD1874F76618D2A97
+Virustotal= password123
+Extremely weak password
+Found in common dictionary lists
+Security Risk:
+Use of SHA1 combined with weak password allows rapid brute-force recovery.
+
+1C8BFE8F801D79745C4631D09FFF36C82AA37FC4CCE4FC946683D7B336B63032
+crackstation.com = letmein
+Even though SHA-256 is stronger than MD5/SHA1, weak passwords remain vulnerable to dictionary attacks.
+
+$2y$12$Dwt1BZj6pcyc3Dy1FWZ5ieeUznr71EeNkJkUlypTsgbX1H68wsRom
+hashes.com = bleh
+Additional info: 626c6568:bcrypt $2*$, Blowfish (Unix)
+Observation:
+bcrypt includes salting and adaptive cost, making it significantly more resistant to brute-force attacks compared to MD5 or SHA-1.
+
+279412f945939ba78ce0758d3fd83daa
+Crackstation = Eternity22
+
+ F09EDCB1FCEFC6DFB23DC3505A882655FF77375ED8AA2D1C13F640FCCC2D0C85
+Crackstation.com = paule
+SHA 256
+
+1DFECA0C002AE40B8619ECF94819CC1B
+Crackstation.com = n63umy8lkf4i
+Type: NTLM
+Note:
+Security Risk:
+NTLM is vulnerable to pass-the-hash attacks in Windows environments.
+
+$6$aReallyHardSalt$6WKUTqzq.UQQmrm0p/T7MPpMbGNnzXPMAXi4bJMl9be.cfi3/qxIf.hsGpS41BqMhSrHVXgMpdjS6xeKZAs02. 
+hashes.com = waka99
+Extra info: 77616b613939:sha512crypt $6$, SHA512 (Unix)
+Observation:
+Stronger than unsalted hashes, but still vulnerable if password is weak.
+
+e5d8870e5bdd26602cab8dbe07a942c8669e56d6
+hashes.com = 481616481616
+HMAC-SHA1 (key = $salt)
+Note:
+HMAC adds key-based hashing, improving integrity protection, but weak passwords remain a critical vulnerability.
+
+Key Takeaways
+
+-Weak passwords remain the primary vulnerability regardless of hashing algorithm.
+
+-Unsalted hashes (MD5, SHA1) are highly vulnerable to rainbow table attacks.
+
+-Modern hashing algorithms like bcrypt and SHA512crypt provide stronger protection when combined with strong passwords.
+
+Hash cracking knowledge is relevant for:
+
+Credential dumping investigations
+Password security audits
+Incident response
+Security Implications
+
+Organizations must:
+Avoid MD5 and SHA1
+Enforce strong password policies
+Implement salted adaptive hashing (bcrypt/Argon2)
+Monitor credential leaks and dumps

@@ -1,0 +1,23 @@
+Tshark Challenge I: Teamwork (Tryhackme challenge)
+
+Using VirusTotal, I reviewed the visited web pages. A malicious email adress eas also extracted. Tshark was used for packet analysis.
+
+The analysis began with the command:~/Desktop/exercise-files$ tshark -r teamwork.pcap
+Initial inspection revealed multiple TCP ACK packets from IP address 184.154.127.226
+Then I refined the search with:
+tshark -r teamwork.pcap -Y "dns.qry.name"
+The following suspicious domain was identified: www.paypal.com4uswebappsrsetaccountrecovery.timeseaways.com
+which is associated with Phishing activity in VirusTotal. Its associated IP address (75.75.75.75) is flagged as malicious in VirusTotal (SOCRadar).
+The packet capture was exported to a text file using:
+tshark -r teamwork.pcap -V > fullcapture.txt
+And then the command: grep -E "\w+@\w+\.\w+" fullcapture.txt
+This revealed the malicious email address: johnny5alive@gmail[.]com
+
+MITRE ATT&CK Mapping
+
+T1566 – Phishing
+T1071 – Application Layer Protocol (if C2 over HTTP/HTTPS confirmed)
+
+The PCAP analysis revealed phishing infrastructure through DNS inspection and artifact extraction. The domain structure strongly suggests brand impersonation and credential harvesting intent.
+
+This exercise demonstrates the importance of DNS analysis in identifying phishing campaigns and extracting actionable IOCs from network traffic.
