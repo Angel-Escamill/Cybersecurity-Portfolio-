@@ -1,0 +1,32 @@
+Tryhackme - Threat Hunting Simulator
+
+Doing forensics after an attack using malicious code in public repositories. This attacks includes the use of node.exe, powershell and persistence.
+
+10:58:24 - healthchk-lib@1.0.1 installed
+10:58:27 - "powershell.exe -NoP -W Hidden -EncodedCommand" Executed
+10:58:27 - postinstall.ps1 created
+10:58:29 - Persistence established using 'HKCU:\software\microsoft\windows\CurrentVersion\Run'
+
+Analysis
+
+The encoded Powershell command was decoded using Cyberchef, revealing a persistence mechanism that executed SystemHealthUpdater.exe.
+
+Mitre ATT&CK
+
+Initial Access - TA0001
+Supply Chain Compromise - T1195
+Execution - TA0002
+Command and Scripting Interpreter - T1059
+Persistence - TA0003
+Event Triggered Execution - T1546
+
+
+
+
+
+
+
+
+
+
+7:29
